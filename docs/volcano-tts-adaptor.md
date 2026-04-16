@@ -71,6 +71,61 @@ relay/adaptor/volcanoTTS/
 | `relay/channeltype/define.go` | 添加 `VolcanoTTS = 57` |
 | `relay/apitype/define.go` | 添加 `VolcanoTTS` |
 | `relay/adaptor.go` | 注册适配器 |
+| `controller/user.go` | CreateUser 返回用户 ID，支持创建时设置 group/quota |
+| `controller/token.go` | 新增 `AdminAddToken` 函数 |
+| `router/api.go` | 新增 `/api/admin/token` 路由 |
+
+## 外部集成 API
+
+本 fork 新增了以下 API 供外部系统（如 XiaChong Workers）使用：
+
+### POST /api/user (已修改)
+
+创建用户，现在返回用户 ID：
+
+```json
+// Request
+{
+  "username": "xc_user123",
+  "password": "random_password",
+  "display_name": "用户昵称",
+  "group": "premium",
+  "quota": 50000
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "id": 42,
+    "username": "xc_user123"
+  }
+}
+```
+
+### POST /api/admin/token (新增)
+
+为指定用户创建 API Token（需要管理员权限）：
+
+```json
+// Request
+{
+  "user_id": 42,
+  "name": "xiachong-tts",
+  "unlimited_quota": true,
+  "expired_time": -1
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "key": "sk-xxxxxxxxxxxxxxxx",
+    "user_id": 42,
+    "name": "xiachong-tts"
+  }
+}
+```
 
 ## 获取 Volcano TTS 凭证
 
