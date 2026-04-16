@@ -54,4 +54,5 @@ const (
 	OpenAICompatible
 	GeminiOpenAICompatible
 	Dummy
+	VolcanoTTS // 57 - Volcano TTS for XiaChong
 )
