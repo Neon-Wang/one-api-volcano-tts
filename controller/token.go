@@ -185,6 +185,75 @@ func DeleteToken(c *gin.Context) {
 	return
 }
 
+// AdminAddToken creates a token for a specified user (admin only)
+// This is used by external systems like XiaChong Workers to provision API access
+func AdminAddToken(c *gin.Context) {
+	token := model.Token{}
+	err := c.ShouldBindJSON(&token)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// UserId must be specified for admin token creation
+	if token.UserId == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "user_id is required",
+		})
+		return
+	}
+
+	// Verify the target user exists
+	_, err = model.GetUserById(token.UserId, false)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "user not found",
+		})
+		return
+	}
+
+	err = validateToken(c, token)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": fmt.Sprintf("参数错误：%s", err.Error()),
+		})
+		return
+	}
+
+	cleanToken := model.Token{
+		UserId:         token.UserId, // Use the specified user ID
+		Name:           token.Name,
+		Key:            random.GenerateKey(),
+		CreatedTime:    helper.GetTimestamp(),
+		AccessedTime:   helper.GetTimestamp(),
+		ExpiredTime:    token.ExpiredTime,
+		RemainQuota:    token.RemainQuota,
+		UnlimitedQuota: token.UnlimitedQuota,
+		Models:         token.Models,
+		Subnet:         token.Subnet,
+	}
+	err = cleanToken.Insert()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    cleanToken,
+	})
+	return
+}
+
 func UpdateToken(c *gin.Context) {
 	userId := c.GetInt(ctxkey.Id)
 	statusOnly := c.Query("status_only")

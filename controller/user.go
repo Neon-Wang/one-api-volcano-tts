@@ -572,6 +572,8 @@ func CreateUser(c *gin.Context) {
 		Username:    user.Username,
 		Password:    user.Password,
 		DisplayName: user.DisplayName,
+		Group:       user.Group, // Allow setting group on creation
+		Quota:       user.Quota, // Allow setting initial quota
 	}
 	if err := cleanUser.Insert(ctx, 0); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -584,6 +586,10 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
+		"data": gin.H{
+			"id":       cleanUser.Id,
+			"username": cleanUser.Username,
+		},
 	})
 	return
 }
