@@ -75,6 +75,8 @@ var ModelRatio = map[string]float64{
 	"tts-1-1106":              7.5,
 	"tts-1-hd":                15, // $0.030 / 1K characters
 	"tts-1-hd-1106":           15,
+	"volcano-tts":             1,  // XiaChong: 1 quota = 1 character for simple accounting
+	"seed-tts-1.1":            1,  // XiaChong: 1 quota = 1 character for simple accounting
 	"davinci":                 10,
 	"curie":                   10,
 	"babbage":                 10,
